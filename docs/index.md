@@ -1,37 +1,4 @@
-## Welcome to GitHub Pages
+## Welcome to Genna Campain's Final Project for Data Visualization
 
-You can use the [editor on GitHub](https://github.com/gennacampain/datavisualization/edit/master/docs/index.md) to maintain and preview the content for your website in Markdown files.
-
-Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
-
-### Markdown
-
-Markdown is a lightweight and easy-to-use syntax for styling your writing. It includes conventions for
-
-```markdown
-Syntax highlighted code block
-
-# Header 1
-## Header 2
-### Header 3
-
-- Bulleted
-- List
-
-1. Numbered
-2. List
-
-**Bold** and _Italic_ and `Code` text
-
-[Link](url) and ![Image](src)
-```
-
-For more details see [GitHub Flavored Markdown](https://guides.github.com/features/mastering-markdown/).
-
-### Jekyll Themes
-
-Your Pages site will use the layout and styles from the Jekyll theme you have selected in your [repository settings](https://github.com/gennacampain/datavisualization/settings). The name of this theme is saved in the Jekyll `_config.yml` configuration file.
-
-### Support or Contact
-
-Having trouble with Pages? Check out our [documentation](https://docs.github.com/categories/github-pages-basics/) or [contact support](https://github.com/contact) and we’ll help you sort it out.
+### Project Introduction
+Among its other lasting effects, the COVID-19 pandemic has called attention to resource- and access- based inequality in healthcare systems all over the world. Although there are many factors that contribute to the reported spread and fatality rate of the virus (including population density, government policy, frequency of comorbidities, average population age, ability to test and report accurately), the availability of healthcare resources remains a major concern for all countries. Considering this, it is reasonable to assume that countries with fewer healthcare resources would show worse health outcomes for infected individuals. This project investigated the relationship between indicators of healthcare system readiness, healthcare spending, and the density (count per 10,000 people in the population) of COVID-19 deaths. The chosen readiness indicators included the density of medical doctors, the density of all healthcare providers (including doctors, nurses, and community health workers), and density of hospital beds. These indicators are part of the World Health Organization’s Service Availability and Readiness Assessment which considers health infrastructure and workforce characteristics to monitor quality and access in healthcare systems. I hypothesized that countries with higher levels of healthcare spending and/or higher density numbers in the readiness indicators would have a lower density of COVID-19 deaths. 
