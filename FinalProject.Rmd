@@ -1,0 +1,135 @@
+---
+title: "FinalProject"
+author: "Genna Campain"
+date: "11/29/2020"
+output: html_document
+---
+## Load Data and Libraries
+```{r, results = 'hide', message = FALSE}
+library(ggplot2)
+library(dplyr)
+library(leaflet)
+library(RColorBrewer)
+library(rgdal)
+
+health_indicators <- read.csv("~/Desktop/Data Visualization/COVID19/All_data_short.csv", header=TRUE, stringsAsFactors =TRUE)
+world <- readOGR("TM_WORLD_BORDERS_SIMPL-0.3", "WorldData")
+```
+
+## Basic Scatter Plot
+Purpose: Early check to see if a visible relationship exists between variables
+```{r}
+p <- ggplot(health_indicators, mapping = aes(CHE_PercentGDP, Death_density))
+p + geom_point(color = "DarkGreen") +
+  labs(x = "Current Per Capita Health Expenditures as % GDP", y = "COVID-19 Deaths per 10k Population") +
+  ggtitle("Per Capita Health Expenditures and COVID-19 Deaths") + 
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  scale_x_continuous() +
+  theme(text = element_text(family = "Helvetica"))
+
+p <- ggplot(health_indicators, mapping = aes(Doctor_density, Death_density))
+p + geom_point(color = "Blue") +
+  labs(x = "Medical Doctors per 10k Population", y = "COVID-19 Deaths per 10k Population") +
+  ggtitle("Density of Medical Doctors and COVID-19 Deaths") + 
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  scale_x_continuous() +
+  theme(text = element_text(family = "Helvetica"))
+
+p <- ggplot(health_indicators, mapping = aes(Provider_density, Death_density))
+p + geom_point(color = "Orange") +
+  labs(x = "Healthcare Providers per 10k", y = "COVID-19 Deaths per 10k Population") + ggtitle("Density of Healthcare Providers and COVID-19 Deaths") + 
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  scale_x_continuous() +
+  theme(text = element_text(family = "Helvetica"))
+
+p <- ggplot(health_indicators, mapping = aes(Hospital_bed_density, Death_density))
+p + geom_point(color = "Red") +
+  labs(x = "Hospital Beds per 10k People", y = "COVID-19 Deaths per 10k Population") +
+  ggtitle("Density of Hospital Beds and COVID-19 Deaths") + 
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  scale_x_continuous() +
+  theme(text = element_text(family = "Helvetica"))
+```
+
+## Multiple regression model
+Purpose: Identify if a significant relationship exists between dependent and independent variables & determine if Percent GDP or Per Capita in USD is better way to quantify health expenditures
+```{r}
+regression1 <- lm(Death_density ~ CHE_PercentGDP + Doctor_density + Provider_density + Hospital_bed_density, data = health_indicators)
+summary(regression1)
+
+regression2 <- lm(Death_density ~ CHE_Percapita + Doctor_density + Provider_density + Hospital_bed_density, data = health_indicators)
+summary(regression2)
+```
+
+## Continent-divided Scatter Plot with Trendlines
+Purpose: Determine if trends exist on continent-level for two significant variables
+```{r}
+p <- ggplot(health_indicators, mapping = aes(CHE_PercentGDP, Death_density, color = Continent))
+p + geom_point(size = 2.5, alpha = 0.7) +
+  geom_smooth(method = "lm", se = FALSE) +
+  labs(x = "Health Expenditures as % GDP", y = "COVID-19 Deaths per 10k Population") +
+  ggtitle("Health Expenditures and COVID-19 Deaths") + 
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  scale_x_continuous() +
+  theme(text = element_text(family = "Helvetica")) + 
+  theme(legend.position = c(0.88, 0.2))
+
+p <- ggplot(health_indicators, mapping = aes(Hospital_bed_density, Death_density, color = Continent))
+p + geom_point(size = 2.5, alpha = 0.7) +
+  geom_smooth(method = "lm", se = FALSE) +
+  labs(x = "Hospital Beds per 10k People", y = "COVID-19 Deaths per 10k Population") +
+  ggtitle("Density of Hospital Beds and COVID-19 Deaths") + 
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  scale_x_continuous() +
+  theme(text = element_text(family = "Helvetica")) +
+  theme(legend.position = c(0.88, 0.8))
+```
+
+## Bubble Chart
+Purpose: Determine if relationship exists between all three variables of interest
+```{r}
+p <- ggplot(health_indicators, aes(x = CHE_PercentGDP, y = Hospital_bed_density, size = Death_density, color = Continent))
+p + geom_point(alpha = 0.6) +
+  ggtitle("Healthcare Spending, Hospital Bed Density, and COVID-19 Deaths") +
+  theme_light() +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  theme(text = element_text(family = "Times New Roman")) +
+  theme(legend.position = c(0.88, 0.65), legend.background = element_rect(fill = NA)) +
+  labs(x = "Health Expenditures as % of GDP", y = "Hospital beds per 10k Population")
+```
+
+## Leaflet Chloropleth Maps
+Purpose: Visualize healthcare spending and density of COVID-19 deaths in an interactive way to observe patterns between two variables
+```{r}
+# COVID-19 Death Density
+mytext <- paste(
+    "Country: ", world@data$NAME,"<br/>", 
+    "Deaths per 10k People: ", world@data$COVID_19_D, "<br/>", 
+    sep="") %>%
+  lapply(htmltools::HTML)
+
+m <- leaflet(world) %>%
+addTiles() %>% addPolygons(stroke = FALSE, fillOpacity = 1, smoothFactor = 0.2, color = ~colorBin(c("#FFFFCC", "#FED976", "#FD8D3C", "#E31A1C", "#800026"), COVID_19_D, bins = 5, pretty = FALSE) (COVID_19_D), 
+label = mytext)
+m %>%
+  addLegend(position = "bottomright", values = ~COVID_19_D, title = "COVID-19 Deaths per 10k People", colors = c("#FFFFCC", "#FED976", "#FD8D3C", "#E31A1C", "#800026"), labels = c("0-1.9", "2.0-3.8", "3.9-5.8", "5.9-7.8", "7.9-9.8"))
+
+# Health Expenditures
+mytext <- paste(
+    "Country: ", world@data$NAME,"<br/>", 
+    "Health Expenditures as % of GDP: ", world@data$Current__1, "<br/>", 
+    sep="") %>%
+  lapply(htmltools::HTML)
+
+m <- leaflet(world) %>%
+addTiles() %>% addPolygons(stroke = FALSE, fillOpacity = 1, smoothFactor = 0.2, color = ~colorBin(c("#FFFFCC", "#FED976", "#FD8D3C", "#E31A1C", "#800026"), Current__1, bins = 5, pretty = FALSE) (Current__1), 
+label = mytext)
+m %>%
+  addLegend(position = "bottomright", values = ~Current__1, title = "Health Expenditures (% of GDP)", colors = c("#FFFFCC", "#FED976", "#FD8D3C", "#E31A1C", "#800026"), labels = c("No Data-3.40", "3.41-6.80", "6.81-10.20", "10.21-13.60", "13.61-17.1"))
+```
